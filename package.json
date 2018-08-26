@@ -6,8 +6,17 @@
   "scripts": {
     "test": "mocha"
   },
+  "homepage": "https://github.com/Flcwl/egghead.io_redux_course_notes_cn#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Flcwl/egghead.io_redux_course_notes_cn.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Flcwl/egghead.io_redux_course_notes_cn/issues"
+  },
   "keywords": [
-    "redux"
+    "redux",
+    "notes"
   ],
   "author": "Flcwl",
   "license": "MIT",

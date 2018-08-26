@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Store</title>
+  <title> Store-MyRedux </title>
   <script 
-    src="https://cdnjs.cloudflare.com/ajax/libs/redux/4.0.0/redux.js">
+    src="../lib/store-method.js">
   </script>
 </head>
 <body>
@@ -24,15 +24,7 @@
     }
   }
 
-  // var createStore = Redux.createStore;
-
-  // ES6 destructuring syntax
-const { createStore } = Redux;   // Redux CDN import syntax
-  // import { create } from 'redux';  // npm syntax babel 
-  // const { createStore } = require('redux');  // nodejs
-
   const store = createStore(counter);
-  
   const render = () => {
     document.body.innerText = store.getState();
   };
@@ -42,11 +34,14 @@ const { createStore } = Redux;   // Redux CDN import syntax
   render();
 
   // stateChange callback 
-  store.subscribe(render);
+  unSub = store.subscribe(render);
 
   document.addEventListener('click', () => {
     // dispatch actions
     store.dispatch({type: 'INCREMENT'});
+
+    // 取消订阅
+    // unSub();
   });
 
 </script>
