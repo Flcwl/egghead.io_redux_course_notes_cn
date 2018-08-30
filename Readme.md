@@ -9,9 +9,11 @@
 mocha ./test/test.js
 ```
 
+
+
 ### 参考
 
 * [Getting Started with Redux](https://egghead.io/courses/getting-started-with-redux)
 * [egghead.io_redux_course_notes](https://github.com/tayiorbeii/egghead.io_redux_course_notes)
 * [学习Redux刷新了我的前端App状态管理观](https://www.jianshu.com/p/94d8f8a36ab0)
-
+* [mocha](https://mochajs.org/))

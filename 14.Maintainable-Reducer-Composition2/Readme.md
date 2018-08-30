@@ -16,4 +16,4 @@ mocha ./test/test.js
 ```
 
 ### 参考
-[13. https://egghead.io/lessons/react-redux-reducer-composition-with-arrays](https://egghead.io/lessons/react-redux-reducer-composition-with-arrays)
+[14. https://egghead.io/lessons/react-redux-reducer-composition-with-objects](https://egghead.io/lessons/react-redux-reducer-composition-with-objects)
