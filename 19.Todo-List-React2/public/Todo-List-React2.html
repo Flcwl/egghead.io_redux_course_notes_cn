@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  <title> Todo-List-React </title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/redux/4.0.0/redux.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.0/react.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.0/react-dom.js"></script>
+
+</head>
+<body>
+  <p> supported in react 0.14.0 </p>
+
+  <div id="root">
+    <!-- 渲染位置 -->
+  </div>
+
+  <hr>
+
+  <p> 当你点击`Add Todo`按钮即触发`action`，`stateChange`调用回调`render()`方法来渲染，增加一个Todo </p>
+  <p> 当你点击某个todo元素即触发`action` 切换Todo，添加或移除中划线 </p>
+  <p> 而`state`中的`todos`作为属性`props`传递到组件模板，总是能保持其最新的`state` </p>
+<!-- todos -->
+<script src="../lib/todos.js"></script>
+<!-- visibilityFilter -->
+<script src="../lib/visibility-filter.js"></script>
+
+<script type="text/babel">
+  const { Component } = React;
+  const { combineReducers } = Redux;
+  const { createStore } = Redux;
+
+  // 合并获得新的Reducer
+  const todoApp = combineReducers({
+    todos,
+    visibilityFilter
+  });
+
+  /**
+   * 过滤显示组件 每个链接对应不同过滤条件：SHOW_ALL  SHOW_COMPLETED  SHOW_ACTIVE
+   * @param {string} filter 该link的过滤条件
+   * @param {string} currentFilter  当前过滤条件
+   * @param {string} children  react内置名称，表示该a标签内包裹的内容
+   * @returns 一个过滤链接，当前选中用`span`包裹，其它为可a标签表示可切换
+   */
+  const FilterLink = ({filter, currentFilter, children}) => { // 都须与属性同名
+    // console.dir(children);
+
+    // 比对currentFilter 和 filter，来判断是否该link被选中
+    if (filter === currentFilter) {
+      // 选中则不可再点击
+      return <span>{children}</span>;
+    }
+    return (
+      <a href="#"
+        onClick={e => {
+          e.preventDefault();
+          store.dispatch({
+            type: 'SET_VISIBILITY_FILTER',
+            filter
+          });
+        }}>
+        { children }
+      </a>
+    );
+  };
+
+  // 基于当前过滤条件filter 来过滤显示todos列表
+  const getVisibleTodos = (filter, todos) => {
+    switch (filter) {
+      case 'SHOW_ACTIVE':
+        return todos.filter(
+          it => !it.isCompleted
+        );
+      case 'SHOW_COMPLETED':
+        return todos.filter(
+          it => it.isCompleted
+        );
+      default:
+        return todos;
+    }
+  };
+
+  // ES6 destructuring syntax
+  const store = createStore(todoApp);
+  
+  let nextTodoId = 0;
+
+  // view layer component
+  class TodoApp extends Component {
+    render() {
+      // 展开传递的props属性
+      const {todos, visibilityFilter} = this.props;
+      
+      const visibleTodos = getVisibleTodos(visibilityFilter, todos);
+
+      return (
+        // 必须使用1个闭标签来包裹
+        <div>
+          <input ref={node => {
+            // React's callback ref() API to 获得该节点保存在`this.input`
+            this.input = node;
+          }} />
+          
+          <button onClick={() => {  // onClick C大写
+            // 点击触发`action` 来改变`state`
+            store.dispatch({
+              type: 'ADD_TODO',
+              text: this.input.value ?
+                this.input.value : `Test ${ nextTodoId }`,
+              id: nextTodoId++
+            });
+            // clear field
+            this.input.value = '';
+          }}>
+            Add Todo
+          </button>
+          <ul>
+            {
+              // this.props.todos.map(todo => {
+                visibleTodos.map(todo => {           
+                // 展开渲染`todos`列表
+                return <li key={todo.id} 
+                  onClick={() => {
+                    // 触发切换 匹配该todo元素的`id`切换它的`state`
+                    store.dispatch({
+                      type: 'TOGGLE_TODO',
+                      id: todo.id
+                    });
+                  }}
+                  style={{
+                    // 双括号对象字段名 即css属性 驼峰写法
+                    cursor: 'pointer',
+                    textDecoration: todo.isCompleted ?
+                      'line-through': 'none'
+                  }} > 
+                    {todo.text} 
+                  </li>;
+              })
+            }
+          </ul>
+          <p>
+            visibilityFilter:
+            {'  '}
+            <FilterLink filter="SHOW_ALL" currentFilter={visibilityFilter}> All </FilterLink>
+            {' | '}
+            <FilterLink filter="SHOW_ACTIVE" currentFilter={visibilityFilter}> Active </FilterLink>
+            {' | '}
+            <FilterLink filter="SHOW_COMPLETED" currentFilter={visibilityFilter}> Completed </FilterLink>
+          </p>
+        </div>
+      );
+    }
+  }
+  
+  const render = () => {
+    // react 渲染
+    ReactDOM.render(
+      // 属性传值 props.todos & props.visibilityFilter
+      <TodoApp
+        // todos={store.getState().todos}
+        { ...store.getState() } // 展开state
+      />,
+      document.getElementById('root')
+    );
+  };
+
+  // initial state
+  console.log(store.getState());
+  render();
+
+  // stateChange callback 回调渲染
+  store.subscribe(render);
+
+</script>
+</body>
+</html>

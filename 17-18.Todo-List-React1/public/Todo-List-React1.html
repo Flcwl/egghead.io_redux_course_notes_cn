@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title> Todo-List-React </title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/redux/4.0.0/redux.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.0/react.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.0/react-dom.js"></script>
+
+</head>
+<body>
+  <p> supported in react 0.14.0 </p>
+  <div id="root">
+    <!-- 渲染位置 -->
+  </div>
+  <p> 当你点击`Add Todo`按钮即触发`action`，`stateChange`调用回调`render()`方法来渲染，增加一个Todo </p>
+  <p> 当你点击某个todo元素即触发`action` 切换Todo，添加或移除中划线 </p>
+  <p> 而`state`中的`todos`作为属性`props`传递到组件模板，总是能保持其最新的`state` </p>
+<!-- todos -->
+<script src="../lib/todos.js"></script>
+<!-- visibilityFilter -->
+<script src="../lib/visibility-filter.js"></script>
+
+<script type="text/babel">
+  const { Component } = React;
+  const { combineReducers } = Redux;
+  const { createStore } = Redux;
+
+  // 合并获得新的Reducer
+  const todoApp = combineReducers({
+    todos,
+    visibilityFilter
+  });
+
+  // ES6 destructuring syntax
+  const store = createStore(todoApp);
+  
+  let nextTodoId = 0;
+  // view layer component
+  class TodoApp extends Component {
+    render() {
+      return (
+        // 必须使用1个闭标签来包裹
+        <div>
+          <input ref={node => {
+            // React's callback ref() API to 获得该节点保存在`this.input`
+            this.input = node;
+          }} />
+          
+          <button onClick={() => {  // onClick C大写
+            // 点击触发`action` 来改变`state`
+            store.dispatch({
+              type: 'ADD_TODO',
+              text: this.input.value ?
+                this.input.value : `Test ${ nextTodoId }`,
+              id: nextTodoId++
+            });
+            // clear field
+            this.input.value = '';
+          }}>
+            Add Todo
+          </button>
+          <ul>
+            {
+              this.props.todos.map(todo => {
+                // 展开渲染`todos`列表
+                return <li key={todo.id} 
+                  onClick={() => {
+                    // 触发切换 匹配该todo元素的`id`切换它的`state`
+                    store.dispatch({
+                      type: 'TOGGLE_TODO',
+                      id: todo.id
+                    });
+                  }}
+                  style={{
+                    // 双括号对象字段名 即css属性 驼峰写法
+                    cursor: 'pointer',
+                    textDecoration: todo.isCompleted ?
+                      'line-through': 'none'
+                  }} > 
+                    {todo.text} 
+                  </li>;
+              }
+            )}
+            
+          </ul>
+        </div>
+      );
+    }
+  }
+  
+  const render = () => {
+    // react 渲染
+    ReactDOM.render(
+      // 属性传值 props.todos
+      <TodoApp
+        todos={store.getState().todos}
+      />,
+      document.getElementById('root')
+    );
+  };
+
+  // initial state
+  console.log(store.getState());
+  render();
+
+  // stateChange callback 回调渲染
+  store.subscribe(render);
+
+</script>
+</body>
+</html>
